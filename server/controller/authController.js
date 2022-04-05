@@ -5,6 +5,7 @@ const AppErorr = require('../utils/appError')
 const catchAsync = require('../utils/catchAsync')
  
 const getToken =(id)=>{
+    //check your code aeound here you may have forgotten id:id and said only id
     return jwt.sign({id:id},process.env.JWT_SECRETE,{
         expiresIn:"30d"
     })
@@ -23,18 +24,7 @@ exports.signup = catchAsync(async(req,res,next)=>{
 })
 
 
-exports.login = catchAsync(async(req,res,next)=>{
-    //
-    const newUser = await User.create(req.body)
 
-    const token = getToken(newUser._id)
-
-    res.status(200).json({
-        success:"success",
-        token:token,
-        data:newUser
-    })
-})
 
 exports.login  = catchAsync(async(req,res,next)=>{
     const {email,password} = req.body
