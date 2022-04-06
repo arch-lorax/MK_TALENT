@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Layout, Menu } from 'antd';
 import {
   MenuUnfoldOutlined,
@@ -18,27 +18,47 @@ import { Link, NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import RightSideBarUserCard from './RightSideBarUserCard';
 import UserStatus from './userStatusBar';
+import { useDispatch, useSelector } from 'react-redux';
+import { Button } from '@mui/material';
+import { changeLight } from '../../redux/counter/mode';
+import { DarkMode } from '@mui/icons-material';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import SearchIcon from '@mui/icons-material/Search';
 
 const { Header, Sider,Footer, Content } = Layout;
 
 const LayoutApp =()=> {
+  const dispatch = useDispatch()
   const [collapsed,setCollapsed]=useState(false)
+  const [windowWidth,setWindowWidth]=useState("")
+  const light = useSelector(state=>state.mode.light)
+  useEffect(() => {
+    function handleResize() {
+      setWindowWidth(window.innerWidth)
+        }
+
+     window.addEventListener('resize', handleResize)
+  },[windowWidth]) 
 
   const toggle = () => {
     setCollapsed(!collapsed)
   };
-
+  console.log(windowWidth)
  
     return (
-      <LayoutStyle>
+      <LayoutStyle >
          <Layout className=' bg-green-500' style={{minHeight:"100vh"}}>
-        <Sider breakpoint="lg" style={{backgroundColor:"#F4F5F8",minHeight:"100vh"}}  trigger={null} collapsible collapsed={collapsed}>
+        <Sider breakpoint="lg" width={300} style={{backgroundColor:light?"#F0F2F5":"#001529",
+                                                   borderRight:!light&&"1px solid #00417e",
+                                                   minHeight:"100vh",
+                                                   position: "fixed",
+                                                   }}  trigger={null} collapsible collapsed={windowWidth<1370?true:collapsed}>
           <div >
-          <div className={`flex ${collapsed?"h-[67px]":"h-40"} justify-center items-center bg-slate-800   border-solid border-red-700 `}  >
+          <div className={`flex ${collapsed||windowWidth<1370?"h-[67px]":"h-60"} justify-center items-center bg-[#001529]   border-solid border-red-700 `}  >
            
             <h1 className='text-white'>Logo</h1>
           </div>
-          <Menu  style={{backgroundColor:"#F4F5F8"}} mode="inline" defaultSelectedKeys={['1']}>
+          <Menu theme={!light&&"dark"} style={{backgroundColor:light&&"#F0F2F5"}}  mode="inline" defaultSelectedKeys={['1']}>
             <Menu.Item key="1" icon={<HomeOutlined />}>
               Home
             </Menu.Item>
@@ -69,38 +89,56 @@ const LayoutApp =()=> {
         
           </div>
           </Sider>
-        <Layout className="site-layout">
-          <Header className="site-layout-background p-0 m-0" >
-             <div className='flex  justify-between border-solid border-blue-400 border-2'>
+        <Layout className="site-layout" style={{marginLeft:windowWidth<1370?80:300}}>
+          <Header style={{backgroundColor:!light && "#001529",borderBottom:!light&&"1px solid #00417e",position:"sticky",top:0}}  className="site-layout-background p-0 m-0" >
+             <div className='flex  justify-between '>
                  <div>
-                 {collapsed?<MenuUnfoldOutlined  className=' trigger ' onClick={toggle}/>:<MenuFoldOutlined className='trigger' onClick={toggle} />}
+                 {windowWidth<1370?"":collapsed?<MenuUnfoldOutlined style={{color:!light && "white",
+                                                         padding:" 0 24px",
+                                                         fontSize: "18px",
+                                                         lineHeight: "64px",
+                                                         cursor: "pointer",
+                                                         transition: "color 0.3s"
+                                                         }}  className='  ' onClick={toggle}/>:
+                           <MenuFoldOutlined style={{color:!light && "white",
+                                                    padding:" 0 24px",
+                                                    fontSize: "18px",
+                                                    lineHeight: "64px",
+                                                    cursor: "pointer",
+                                                    transition: "color 0.3s"
+                                                    }} className='trigger' onClick={toggle} />}
                  
                  </div>
-                 <div className='navbar-a flex  mx-8 '>
+                 <div className={`${light?"navbar-a":"navbar-a dark__navbar_a"} flex  mx-8 `}>
                    <NavLink  to={'/ww'}>ABOUT US</NavLink>
                    <NavLink to={'/ee'}>CONTACT</NavLink>
                    <NavLink to={'/ll'}>LOGIN</NavLink>
                    <NavLink to={'/pp'}>REGISTER</NavLink>
-                   
+                   {light?
+     <Button onClick={()=>dispatch(changeLight())}  style={{width:"50px",backgroundColor:"#1E293B"}} variant="" ><DarkMode style={{color:"white"}}/> </Button> 
+
+      :
+      <Button onClick={()=>dispatch(changeLight())}  style={{width:"50px",backgroundColor:"#1E293B"}} variant="" ><LightModeIcon style={{color:"white"}}/> </Button> 
+
+    }
                  </div>
                    
               </div>            
           </Header>
           <Layout>
           <Content
-            className=""
+            className={`${!light ? "bg-[#001529]":"bg-[#fbfbfb]"}`}
             style={{
-              margin: '24px 16px',
-              padding: 24,
+              padding: '0 16px',
               minHeight: 280,
             }}
           >
-            
-          </Content>
-          <Sider style={{backgroundColor:"#F0F2F5"}} width={400} breakpoint="md">
-           <UserStatus/>
+            <UserStatus/>
+            <UserStatus/>
+            <UserStatus/>
 
-          </Sider>
+          </Content>
+          
           </Layout>
           
         </Layout>
@@ -123,6 +161,12 @@ const LayoutStyle = styled.div`
      border-bottom:3px solid white ;
      
    }
+   .dark__navbar_a a{
+    color: white;
+    border-bottom:3px solid #001529 ;
+
+   }
+  
    .navbar-a .active{
     background-color: #E6F7FF;
      border-bottom:3px solid #1890FF ;
@@ -131,6 +175,12 @@ const LayoutStyle = styled.div`
    .navbar-a a:hover{
      color:#1890FF;
      
+   }
+   .dark__navbar_a .active{
+     background-color: #1890FF;
+   }
+   .dark__navbar_a .active:hover{
+     color: white;
    }
    
 `;
